@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>アイデア引き出し装置</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Hiragino Kaku Gothic Pro', 'Noto Sans JP', 'Yu Gothic', sans-serif;
+      background: #f5f7fa;
+      color: #333;
+      min-height: 100vh;
+    }
+
+    .screen { display: none; min-height: 100vh; flex-direction: column; }
+    .screen.active { display: flex; }
+
+    .app-header {
+      background: #fff;
+      border-bottom: 1px solid #e0e0e0;
+      padding: 14px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .app-header h1 { font-size: 17px; color: #4a90d9; font-weight: 700; }
+    .app-header .subtitle { font-size: 12px; color: #888; margin-top: 2px; }
+
+    .content {
+      flex: 1;
+      padding: 20px;
+      max-width: 680px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .section-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; color: #222; }
+    .section-desc  { font-size: 14px; color: #666; margin-bottom: 24px; line-height: 1.6; }
+    .theme-badge {
+      display: inline-block;
+      background: #eaf2ff; color: #4a90d9;
+      border-radius: 6px; padding: 4px 12px;
+      font-size: 14px; font-weight: 600; margin-bottom: 16px;
+    }
+
+    textarea {
+      width: 100%; border: 2px solid #e0e0e0; border-radius: 10px;
+      padding: 14px; font-size: 16px; font-family: inherit;
+      resize: vertical; min-height: 90px; transition: border-color 0.2s; background: #fff;
+    }
+    textarea:focus { outline: none; border-color: #4a90d9; }
+
+    .examples { margin-top: 16px; }
+    .examples p { font-size: 13px; color: #888; margin-bottom: 8px; }
+    .example-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .example-chip {
+      background: #f0f0f0; border: none; border-radius: 20px;
+      padding: 6px 14px; font-size: 13px; color: #555;
+      cursor: pointer; transition: background 0.15s; font-family: inherit;
+    }
+    .example-chip:hover { background: #e0e8f8; color: #4a90d9; }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 14px 24px; border-radius: 10px;
+      font-size: 16px; font-weight: 600; font-family: inherit;
+      cursor: pointer; border: none; transition: opacity 0.15s, transform 0.1s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    .btn-primary   { background: #4a90d9; color: #fff; width: 100%; margin-top: 20px; }
+    .btn-primary:hover:not(:disabled) { background: #3a7bc8; }
+    .btn-secondary { background: #fff; color: #4a90d9; border: 2px solid #4a90d9; width: 100%; margin-top: 10px; }
+    .btn-secondary:hover { background: #eaf2ff; }
+    .btn-success   { background: #34c759; color: #fff; flex: 1; }
+    .btn-success:hover { background: #28a745; }
+    .btn-outline   { background: #fff; color: #555; border: 2px solid #e0e0e0; flex: 1; }
+    .btn-outline:hover { border-color: #aaa; }
+
+    .protocol-cards { display: grid; gap: 12px; margin-bottom: 20px; }
+    .protocol-card {
+      background: #fff; border: 2px solid #e0e0e0; border-radius: 12px;
+      padding: 16px; cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .protocol-card:hover { border-color: #4a90d9; box-shadow: 0 2px 8px rgba(74,144,217,.15); }
+    .protocol-card.selected { border-color: #4a90d9; background: #eaf2ff; }
+    .protocol-card-name { font-size: 16px; font-weight: 700; color: #222; margin-bottom: 4px; }
+    .protocol-card-badge {
+      display: inline-block; background: #fff3e0; color: #e67e22;
+      border-radius: 4px; padding: 2px 8px; font-size: 11px; font-weight: 600; margin-bottom: 6px;
+    }
+    .protocol-card-desc { font-size: 13px; color: #666; }
+
+    .protocol-detail {
+      background: #fff; border: 1px solid #e0e0e0; border-radius: 12px;
+      padding: 16px; margin-bottom: 16px;
+    }
+    .protocol-detail h3 { font-size: 14px; font-weight: 700; margin-bottom: 12px; color: #444; }
+    .step-list { display: flex; flex-direction: column; gap: 8px; }
+    .step-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 10px; background: #f8f8f8; border-radius: 8px;
+    }
+    .step-label-col { font-size: 12px; color: #888; min-width: 80px; flex-shrink: 0; }
+    .step-q-col    { font-size: 14px; color: #333; flex: 1; }
+    .step-badge    { font-size: 11px; padding: 2px 8px; border-radius: 4px; flex-shrink: 0; }
+    .badge-fixed   { background: #e8f5e9; color: #2e7d32; }
+    .badge-variable{ background: #fff8e1; color: #f57f17; }
+
+    .progress-bar-container { background: #e0e0e0; border-radius: 4px; height: 5px; margin: 6px 0 2px; }
+    .progress-bar  { background: #4a90d9; height: 100%; border-radius: 4px; transition: width 0.4s; }
+    .progress-text { font-size: 12px; color: #888; text-align: right; }
+
+    .question-card {
+      background: #fff; border-radius: 14px; padding: 24px; margin: 16px 0;
+      box-shadow: 0 2px 12px rgba(0,0,0,.06);
+    }
+    .question-step-label {
+      font-size: 12px; color: #4a90d9; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px;
+    }
+    .question-text { font-size: 22px; font-weight: 700; color: #222; line-height: 1.4; margin-bottom: 16px; }
+
+    .previous-answers { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+    .prev-answer-item { background: #f0f4ff; border-radius: 8px; padding: 8px 12px; font-size: 14px; color: #444; }
+    .prev-answer-num  { font-size: 11px; color: #4a90d9; font-weight: 700; margin-right: 6px; }
+
+    .variable-hint { font-size: 12px; color: #888; margin-bottom: 8px; }
+
+    .btn-group { display: flex; flex-direction: column; gap: 10px; }
+
+    .summary-meta {
+      background: #fff; border-radius: 12px; padding: 16px;
+      margin-bottom: 16px; border: 1px solid #e0e0e0;
+    }
+    .summary-meta-title { font-size: 20px; font-weight: 700; color: #222; margin-bottom: 4px; }
+    .summary-meta-info  { font-size: 13px; color: #888; }
+
+    .summary-step {
+      background: #fff; border-radius: 12px; padding: 16px;
+      margin-bottom: 10px; border: 1px solid #e0e0e0;
+    }
+    .summary-step-label    { font-size: 12px; color: #4a90d9; font-weight: 600; margin-bottom: 4px; }
+    .summary-step-question { font-size: 13px; color: #888; margin-bottom: 8px; }
+    .summary-answer        { font-size: 15px; color: #222; line-height: 1.6; }
+    .summary-answer-item   { padding: 2px 0; }
+    .summary-answer-num    { font-size: 12px; color: #4a90d9; font-weight: 700; margin-right: 6px; }
+
+    .action-buttons { display: flex; gap: 10px; margin: 20px 0; flex-wrap: wrap; }
+    .action-buttons .btn { min-width: 80px; }
+
+    .session-history-item {
+      background: #fff; border-radius: 12px; padding: 14px;
+      margin-bottom: 10px; border: 1px solid #e0e0e0; cursor: pointer;
+    }
+    .session-history-item:hover { border-color: #4a90d9; }
+    .session-history-theme { font-size: 16px; font-weight: 700; color: #222; margin-bottom: 4px; }
+    .session-history-info  { font-size: 12px; color: #888; }
+
+    .empty-state { text-align: center; padding: 40px 20px; color: #888; }
+    .empty-icon  { font-size: 40px; margin-bottom: 12px; }
+
+    #toast {
+      position: fixed; bottom: 24px; left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #333; color: #fff;
+      padding: 12px 24px; border-radius: 8px; font-size: 14px;
+      transition: transform 0.3s; z-index: 100; white-space: nowrap;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+
+    .resume-banner {
+      background: #fff8e1; border: 1px solid #ffd54f; border-radius: 10px;
+      padding: 14px; margin-bottom: 16px; font-size: 14px; color: #555;
+    }
+    .resume-banner strong { display: block; color: #333; margin-bottom: 6px; }
+    .resume-banner-btns { display: flex; gap: 8px; margin-top: 10px; }
+    .resume-banner-btns button {
+      flex: 1; padding: 8px; border-radius: 8px; font-size: 13px;
+      font-family: inherit; font-weight: 600; cursor: pointer; border: none;
+    }
+    .btn-resume  { background: #4a90d9; color: #fff; }
+    .btn-discard { background: #f0f0f0; color: #555; }
+
+    @media (min-width: 480px) {
+      .protocol-cards { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- 画面1：テーマ入力 -->
+<div id="screen1" class="screen active">
+  <div class="app-header">
+    <h1>アイデア引き出し装置</h1>
+    <div class="subtitle">親が子のアイデアを引き出すための質問装置</div>
+  </div>
+  <div class="content">
+    <div id="resume-banner" style="display:none"></div>
+
+    <h2 class="section-title">何のアイデアが欲しいですか？</h2>
+    <p class="section-desc">テーマを入力してください。このテーマを中心に質問が進みます。</p>
+
+    <textarea id="theme-input" placeholder="例：絵を描くためのアイデア" rows="3"></textarea>
+
+    <div class="examples">
+      <p>入力例（タップで入力）：</p>
+      <div class="example-chips">
+        <button class="example-chip" onclick="setExample(this)">絵を描くためのアイデア</button>
+        <button class="example-chip" onclick="setExample(this)">コンペのアイデア</button>
+        <button class="example-chip" onclick="setExample(this)">キーホルダーのデザイン</button>
+        <button class="example-chip" onclick="setExample(this)">子供への本の読み聞かせ方</button>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" onclick="goToProtocolSelect()">質問の型を選ぶ →</button>
+    <button class="btn btn-secondary" onclick="goToHistory()">過去のセッションを見る</button>
+  </div>
+</div>
+
+<!-- 画面2：プロトコル選択 -->
+<div id="screen2" class="screen">
+  <div class="app-header">
+    <h1>アイデア引き出し装置</h1>
+    <div class="subtitle">質問の型を選ぶ</div>
+  </div>
+  <div class="content">
+    <div id="s2-theme" class="theme-badge"></div>
+    <h2 class="section-title">質問の型を選んでください</h2>
+    <p class="section-desc">選んだ型の手順に従って質問が進みます。</p>
+
+    <div class="protocol-cards" id="protocol-cards"></div>
+
+    <div class="protocol-detail" id="protocol-detail" style="display:none">
+      <h3>ステップ一覧</h3>
+      <div class="step-list" id="step-list"></div>
+    </div>
+
+    <button class="btn btn-primary" id="start-btn" onclick="startSession()" disabled>セッション開始 →</button>
+    <button class="btn btn-secondary" onclick="showScreen(1)">← テーマを変更する</button>
+  </div>
+</div>
+
+<!-- 画面3：質問セッション -->
+<div id="screen3" class="screen">
+  <div class="app-header">
+    <div id="s3-theme" style="font-size:13px;color:#4a90d9;font-weight:600;"></div>
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    <div class="progress-text" id="progress-text"></div>
+  </div>
+  <div class="content">
+    <div class="question-card">
+      <div class="question-step-label" id="q-step-label"></div>
+      <div class="question-text"       id="q-text"></div>
+      <div class="previous-answers"   id="prev-answers"></div>
+      <div class="variable-hint"      id="var-hint" style="display:none"></div>
+      <textarea id="answer-input" placeholder="回答を入力..." rows="3"></textarea>
+    </div>
+
+    <div class="btn-group" id="fixed-ctrl">
+      <button class="btn btn-primary" onclick="submitFixed()">次へ →</button>
+    </div>
+    <div class="btn-group" id="var-ctrl" style="display:none">
+      <button class="btn btn-primary"    id="add-var-btn" onclick="submitVariable()">次へ追加 ＋</button>
+      <button class="btn btn-secondary"  onclick="finishVariable()">次のフェーズへ →</button>
+    </div>
+  </div>
+</div>
+
+<!-- 画面4：まとめ -->
+<div id="screen4" class="screen">
+  <div class="app-header">
+    <h1>セッション完了</h1>
+  </div>
+  <div class="content">
+    <div id="summary-meta"  class="summary-meta"></div>
+    <div id="summary-steps"></div>
+
+    <div class="action-buttons">
+      <button class="btn btn-success" onclick="copyAll()">コピー</button>
+      <button class="btn btn-outline" onclick="exportJSON()">JSON保存</button>
+      <button class="btn btn-outline" onclick="exportText()">テキスト保存</button>
+    </div>
+
+    <button class="btn btn-secondary" onclick="goToHistory()">過去のセッション一覧 →</button>
+    <button class="btn btn-outline"   onclick="showScreen(1)" style="width:100%;margin-top:10px;">新しいセッションを始める</button>
+  </div>
+</div>
+
+<!-- 画面5：過去セッション一覧 -->
+<div id="screen5" class="screen">
+  <div class="app-header">
+    <h1>過去のセッション</h1>
+  </div>
+  <div class="content">
+    <div id="history-list"></div>
+    <button class="btn btn-secondary" onclick="showScreen(1)" style="margin-top:10px;">← 新しいセッションへ</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+'use strict';
+
+// ========== 定数 ==========
+const STORAGE_KEY = 'idea-sparker-v1';
+
+const DEFAULT_PROTOCOLS = [
+  {
+    id: 'moshimo', name: 'もしもリドル', author: '由貴プロトコル',
+    description: '「もしも〜だったら？」から発想を広げる',
+    steps: [
+      { id: 'if',         label: 'もしも',     question: 'もしも〜だったら？',         type: 'fixed'                  },
+      { id: 'happen',     label: '何が起きる', question: '何が起きる？',               type: 'fixed'                  },
+      { id: 'feeling',    label: 'どう感じる', question: 'どう感じる？',               type: 'fixed'                  },
+      { id: 'birth',      label: '何が生まれる',question: 'そこから何が生まれる？',    type: 'variable', maxCount: 3  },
+      { id: 'connection', label: 'つながり',   question: 'それらはどうつながる？',     type: 'fixed'                  },
+      { id: 'result',     label: '完成',       question: '最終的に何ができあがる？',   type: 'fixed'                  },
+    ]
+  },
+  {
+    id: 'scamper', name: 'SCAMPER', author: '',
+    description: '7つの視点でアイデアを変形させる',
+    steps: [
+      { id: 's', label: 'Substitute',     question: '代わりに何を使える？',       type: 'fixed' },
+      { id: 'c', label: 'Combine',        question: '何かと組み合わせられる？',   type: 'fixed' },
+      { id: 'a', label: 'Adapt',          question: '何かから応用できる？',       type: 'fixed' },
+      { id: 'm', label: 'Modify',         question: '大きさ・形・色を変えたら？', type: 'fixed' },
+      { id: 'p', label: 'Put to other uses', question: '他の使い道は？',         type: 'fixed' },
+      { id: 'e', label: 'Eliminate',      question: '取り除けるものは？',         type: 'fixed' },
+      { id: 'r', label: 'Reverse',        question: '逆にしたら・並べ替えたら？', type: 'fixed' },
+    ]
+  },
+  {
+    id: 'naze', name: 'なぜなぜ分析', author: '',
+    description: '「なぜ？」を繰り返して根本に迫る',
+    steps: [
+      { id: 'naze', label: 'なぜ', question: 'それはなぜ？',      type: 'variable', maxCount: 5 },
+      { id: 'root', label: '根本', question: '根本にあるものは何？', type: 'fixed'               },
+    ]
+  },
+  {
+    id: '5w1h', name: '5W1H', author: '',
+    description: '6つの問いでアイデアを整理する',
+    steps: [
+      { id: 'who',   label: 'Who',   question: '誰のため？',   type: 'fixed' },
+      { id: 'what',  label: 'What',  question: '何をする？',   type: 'fixed' },
+      { id: 'when',  label: 'When',  question: 'いつ？',       type: 'fixed' },
+      { id: 'where', label: 'Where', question: 'どこで？',     type: 'fixed' },
+      { id: 'why',   label: 'Why',   question: 'なぜ必要？',   type: 'fixed' },
+      { id: 'how',   label: 'How',   question: 'どうやって？', type: 'fixed' },
+    ]
+  }
+];
+
+// ========== ストレージ ==========
+function loadStorage() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : { sessions: [] };
+  } catch { return { sessions: [] }; }
+}
+
+function saveStorage(data) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+  catch (e) { console.error('保存失敗', e); }
+}
+
+function persistSession(session) {
+  const data = loadStorage();
+  const idx = data.sessions.findIndex(s => s.id === session.id);
+  if (idx >= 0) { data.sessions[idx] = session; }
+  else          { data.sessions.unshift(session); }
+  saveStorage(data);
+}
+
+function getSessions()  { return loadStorage().sessions; }
+
+// ========== アプリ状態 ==========
+const state = { theme: '', selectedProtocolId: null, session: null };
+
+// ========== ユーティリティ ==========
+function esc(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;');
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function showScreen(n) {
+  document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+  document.getElementById('screen' + n).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ========== 画面1 ==========
+function setExample(btn) { document.getElementById('theme-input').value = btn.textContent; }
+
+function goToProtocolSelect() {
+  const theme = document.getElementById('theme-input').value.trim();
+  if (!theme) { toast('テーマを入力してください'); return; }
+  state.theme = theme;
+  state.selectedProtocolId = null;
+  renderScreen2();
+  showScreen(2);
+}
+
+function showResumeBanner() {
+  const sessions = getSessions();
+  const inProgress = sessions.find(s => !s.completedAt);
+  if (!inProgress) return;
+
+  const banner = document.getElementById('resume-banner');
+  banner.style.display = 'block';
+  banner.innerHTML = `
+    <div class="resume-banner">
+      <strong>前回の途中セッションがあります</strong>
+      テーマ：${esc(inProgress.theme)} ／ ${esc(inProgress.protocolName)}
+      <div class="resume-banner-btns">
+        <button class="btn-resume"  onclick="resumeSession('${inProgress.id}')">再開する</button>
+        <button class="btn-discard" onclick="discardSession('${inProgress.id}')">破棄して新しく始める</button>
+      </div>
+    </div>
+  `;
+}
+
+function resumeSession(id) {
+  const session = getSessions().find(s => s.id === id);
+  if (!session) return;
+  state.session = session;
+  showScreen(3);
+  renderStep();
+}
+
+function discardSession(id) {
+  const data = loadStorage();
+  data.sessions = data.sessions.filter(s => s.id !== id);
+  saveStorage(data);
+  document.getElementById('resume-banner').style.display = 'none';
+  toast('破棄しました');
+}
+
+// ========== 画面2 ==========
+function renderScreen2() {
+  document.getElementById('s2-theme').textContent = state.theme;
+
+  const cards = document.getElementById('protocol-cards');
+  cards.innerHTML = DEFAULT_PROTOCOLS.map(p => `
+    <div class="protocol-card" id="card-${p.id}" onclick="selectProtocol('${p.id}')">
+      <div class="protocol-card-name">${esc(p.name)}</div>
+      ${p.author ? `<div class="protocol-card-badge">${esc(p.author)}</div>` : ''}
+      <div class="protocol-card-desc">${esc(p.description)}</div>
+    </div>
+  `).join('');
+
+  document.getElementById('protocol-detail').style.display = 'none';
+  document.getElementById('start-btn').disabled = true;
+}
+
+function selectProtocol(id) {
+  state.selectedProtocolId = id;
+  document.querySelectorAll('.protocol-card').forEach(el => el.classList.remove('selected'));
+  document.getElementById('card-' + id).classList.add('selected');
+
+  const p = DEFAULT_PROTOCOLS.find(p => p.id === id);
+  if (!p) return;
+
+  document.getElementById('step-list').innerHTML = p.steps.map(s => `
+    <div class="step-item">
+      <div class="step-label-col">${esc(s.label)}</div>
+      <div class="step-q-col">${esc(s.question)}</div>
+      <div class="step-badge ${s.type === 'fixed' ? 'badge-fixed' : 'badge-variable'}">
+        ${s.type === 'fixed' ? '1問1答' : `最大${s.maxCount}回`}
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('protocol-detail').style.display = 'block';
+  document.getElementById('start-btn').disabled = false;
+}
+
+// ========== 画面3 ==========
+function startSession() {
+  const p = DEFAULT_PROTOCOLS.find(p => p.id === state.selectedProtocolId);
+  if (!p) return;
+
+  state.session = {
+    id: Date.now().toString(),
+    theme: state.theme,
+    protocolId: p.id,
+    protocolName: p.name,
+    steps: p.steps.map(s => ({
+      id: s.id, label: s.label, question: s.question,
+      type: s.type, maxCount: s.maxCount || 1, answers: [],
+    })),
+    currentStepIndex: 0,
+    startedAt: new Date().toISOString(),
+    completedAt: null,
+  };
+
+  persistSession(state.session);
+  showScreen(3);
+  renderStep();
+}
+
+function renderStep() {
+  const session = state.session;
+  const step    = session.steps[session.currentStepIndex];
+  const total   = session.steps.length;
+  const current = session.currentStepIndex + 1;
+
+  document.getElementById('s3-theme').textContent = session.theme;
+  document.getElementById('progress-bar').style.width = ((current - 1) / total * 100) + '%';
+  document.getElementById('progress-text').textContent = `ステップ ${current} / ${total}`;
+
+  document.getElementById('q-step-label').textContent = step.label;
+  document.getElementById('q-text').textContent       = step.question;
+  document.getElementById('answer-input').value       = '';
+
+  renderPrevAnswers(step);
+
+  if (step.type === 'fixed') {
+    document.getElementById('fixed-ctrl').style.display = 'flex';
+    document.getElementById('var-ctrl').style.display   = 'none';
+    document.getElementById('var-hint').style.display   = 'none';
+  } else {
+    document.getElementById('fixed-ctrl').style.display = 'none';
+    document.getElementById('var-ctrl').style.display   = 'flex';
+
+    const hint = document.getElementById('var-hint');
+    hint.style.display = 'block';
+    hint.textContent   = `${step.answers.length} 件入力済み（最大 ${step.maxCount} 件）`;
+
+    const addBtn = document.getElementById('add-var-btn');
+    if (step.answers.length >= step.maxCount) {
+      addBtn.disabled   = true;
+      addBtn.textContent = `上限（${step.maxCount}件）に達しました`;
+    } else {
+      addBtn.disabled   = false;
+      addBtn.textContent = `次へ追加 ＋（${step.answers.length}/${step.maxCount}）`;
+    }
+  }
+
+  document.getElementById('answer-input').focus();
+}
+
+function renderPrevAnswers(step) {
+  const el = document.getElementById('prev-answers');
+  el.innerHTML = step.answers.map((a, i) => `
+    <div class="prev-answer-item">
+      <span class="prev-answer-num">${i + 1}.</span>${esc(a)}
+    </div>
+  `).join('');
+}
+
+function getAnswerInput() { return document.getElementById('answer-input').value.trim(); }
+
+function submitFixed() {
+  const ans = getAnswerInput();
+  if (!ans) { toast('回答を入力してください'); return; }
+  const step = state.session.steps[state.session.currentStepIndex];
+  step.answers = [ans];
+  persistSession(state.session);
+  advance();
+}
+
+function submitVariable() {
+  const ans = getAnswerInput();
+  if (!ans) { toast('回答を入力してください'); return; }
+  const step = state.session.steps[state.session.currentStepIndex];
+  step.answers.push(ans);
+  persistSession(state.session);
+  if (step.answers.length >= step.maxCount) { advance(); }
+  else { renderStep(); }
+}
+
+function finishVariable() {
+  const step = state.session.steps[state.session.currentStepIndex];
+  const ans  = getAnswerInput();
+  if (ans) { step.answers.push(ans); }
+  if (step.answers.length === 0) { toast('少なくとも1件入力してください'); return; }
+  persistSession(state.session);
+  advance();
+}
+
+function advance() {
+  state.session.currentStepIndex++;
+  if (state.session.currentStepIndex >= state.session.steps.length) { complete(); }
+  else { renderStep(); }
+}
+
+function complete() {
+  state.session.completedAt = new Date().toISOString();
+  persistSession(state.session);
+  showScreen(4);
+  renderSummary();
+}
+
+// ========== 画面4 ==========
+function renderSummary() {
+  const s = state.session;
+  document.getElementById('summary-meta').innerHTML = `
+    <div class="summary-meta-title">${esc(s.theme)}</div>
+    <div class="summary-meta-info">プロトコル：${esc(s.protocolName)} ／ ${new Date(s.startedAt).toLocaleString('ja-JP')}</div>
+  `;
+  document.getElementById('summary-steps').innerHTML = s.steps.map(step => {
+    const answersHtml = step.type === 'fixed'
+      ? `<div class="summary-answer">${esc(step.answers[0] || '（未回答）')}</div>`
+      : `<div class="summary-answer">${step.answers.map((a, i) =>
+          `<div class="summary-answer-item"><span class="summary-answer-num">${i+1}.</span>${esc(a)}</div>`
+        ).join('')}</div>`;
+    return `
+      <div class="summary-step">
+        <div class="summary-step-label">${esc(step.label)}</div>
+        <div class="summary-step-question">${esc(step.question)}</div>
+        ${answersHtml}
+      </div>
+    `;
+  }).join('');
+}
+
+function buildText() {
+  const s = state.session;
+  let t = `テーマ：${s.theme}\nプロトコル：${s.protocolName}\n日時：${new Date(s.startedAt).toLocaleString('ja-JP')}\n${'─'.repeat(30)}\n\n`;
+  s.steps.forEach(step => {
+    t += `【${step.label}】${step.question}\n`;
+    if (step.type === 'fixed') { t += `${step.answers[0] || '（未回答）'}\n\n`; }
+    else { step.answers.forEach((a, i) => { t += `${i+1}. ${a}\n`; }); t += '\n'; }
+  });
+  return t;
+}
+
+function copyAll() {
+  const text = buildText();
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => toast('コピーしました'));
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    toast('コピーしました');
+  }
+}
+
+function download(filename, content, type) {
+  const blob = new Blob([content], { type });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+function exportJSON() {
+  download(`idea-${state.session.id}.json`, JSON.stringify(state.session, null, 2), 'application/json');
+  toast('JSONで保存しました');
+}
+
+function exportText() {
+  download(`idea-${state.session.id}.txt`, buildText(), 'text/plain;charset=utf-8');
+  toast('テキストで保存しました');
+}
+
+// ========== 画面5 ==========
+function goToHistory() { renderHistory(); showScreen(5); }
+
+function renderHistory() {
+  const done = getSessions().filter(s => s.completedAt);
+  const el   = document.getElementById('history-list');
+  if (done.length === 0) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">📝</div><p>まだ完了したセッションがありません</p></div>`;
+    return;
+  }
+  el.innerHTML = done.map(s => `
+    <div class="session-history-item" onclick="viewHistory('${s.id}')">
+      <div class="session-history-theme">${esc(s.theme)}</div>
+      <div class="session-history-info">${esc(s.protocolName)} ／ ${new Date(s.startedAt).toLocaleString('ja-JP')}</div>
+    </div>
+  `).join('');
+}
+
+function viewHistory(id) {
+  const s = getSessions().find(s => s.id === id);
+  if (!s) return;
+  state.session = s;
+  showScreen(4); renderSummary();
+}
+
+// ========== 初期化 ==========
+showResumeBanner();
+</script>
+</body>
+</html>
