@@ -17,173 +17,231 @@
     .screen { display: none; min-height: 100vh; flex-direction: column; }
     .screen.active { display: flex; }
 
+    /* ヘッダー */
     .app-header {
       background: #fff;
       border-bottom: 1px solid #e0e0e0;
-      padding: 14px 20px;
-      position: sticky;
-      top: 0;
-      z-index: 10;
+      padding: 12px 16px;
+      position: sticky; top: 0; z-index: 10;
+      display: flex; align-items: center; gap: 10px;
     }
-    .app-header h1 { font-size: 17px; color: #4a90d9; font-weight: 700; }
-    .app-header .subtitle { font-size: 12px; color: #888; margin-top: 2px; }
+    .app-header-main { flex: 1; }
+    .app-header h1   { font-size: 16px; color: #4a90d9; font-weight: 700; }
+    .app-header .subtitle { font-size: 11px; color: #888; margin-top: 2px; }
+    .settings-btn {
+      background: none; border: none; cursor: pointer;
+      color: #aaa; font-size: 20px; padding: 4px; line-height: 1;
+    }
+    .settings-btn:hover { color: #4a90d9; }
 
+    /* コンテンツ */
     .content {
-      flex: 1;
-      padding: 20px;
-      max-width: 680px;
-      margin: 0 auto;
-      width: 100%;
+      flex: 1; padding: 20px;
+      max-width: 680px; margin: 0 auto; width: 100%;
     }
 
     .section-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; color: #222; }
-    .section-desc  { font-size: 14px; color: #666; margin-bottom: 24px; line-height: 1.6; }
+    .section-desc  { font-size: 14px; color: #666; margin-bottom: 20px; line-height: 1.6; }
     .theme-badge {
-      display: inline-block;
-      background: #eaf2ff; color: #4a90d9;
+      display: inline-block; background: #eaf2ff; color: #4a90d9;
       border-radius: 6px; padding: 4px 12px;
-      font-size: 14px; font-weight: 600; margin-bottom: 16px;
+      font-size: 14px; font-weight: 600; margin-bottom: 14px;
     }
 
     textarea {
       width: 100%; border: 2px solid #e0e0e0; border-radius: 10px;
-      padding: 14px; font-size: 16px; font-family: inherit;
-      resize: vertical; min-height: 90px; transition: border-color 0.2s; background: #fff;
+      padding: 12px 14px; font-size: 16px; font-family: inherit;
+      resize: vertical; min-height: 80px;
+      transition: border-color 0.2s; background: #fff;
     }
     textarea:focus { outline: none; border-color: #4a90d9; }
 
-    .examples { margin-top: 16px; }
+    /* チップ */
+    .examples { margin-top: 14px; }
     .examples p { font-size: 13px; color: #888; margin-bottom: 8px; }
     .example-chips { display: flex; flex-wrap: wrap; gap: 8px; }
     .example-chip {
       background: #f0f0f0; border: none; border-radius: 20px;
       padding: 6px 14px; font-size: 13px; color: #555;
-      cursor: pointer; transition: background 0.15s; font-family: inherit;
+      cursor: pointer; font-family: inherit; transition: background 0.15s;
     }
     .example-chip:hover { background: #e0e8f8; color: #4a90d9; }
 
+    /* ボタン共通 */
     .btn {
       display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-      padding: 14px 24px; border-radius: 10px;
-      font-size: 16px; font-weight: 600; font-family: inherit;
+      padding: 13px 22px; border-radius: 10px;
+      font-size: 15px; font-weight: 600; font-family: inherit;
       cursor: pointer; border: none; transition: opacity 0.15s, transform 0.1s;
     }
     .btn:active { transform: scale(0.97); }
     .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-
-    .btn-primary   { background: #4a90d9; color: #fff; width: 100%; margin-top: 20px; }
+    .btn-primary   { background: #4a90d9; color: #fff; width: 100%; margin-top: 18px; }
     .btn-primary:hover:not(:disabled) { background: #3a7bc8; }
     .btn-secondary { background: #fff; color: #4a90d9; border: 2px solid #4a90d9; width: 100%; margin-top: 10px; }
-    .btn-secondary:hover { background: #eaf2ff; }
+    .btn-secondary:hover:not(:disabled) { background: #eaf2ff; }
     .btn-success   { background: #34c759; color: #fff; flex: 1; }
     .btn-success:hover { background: #28a745; }
     .btn-outline   { background: #fff; color: #555; border: 2px solid #e0e0e0; flex: 1; }
     .btn-outline:hover { border-color: #aaa; }
+    .btn-hint {
+      background: #fff8e1; color: #e67e22; border: 2px solid #ffd54f;
+      width: 100%; margin-top: 10px; font-size: 14px; padding: 10px;
+    }
+    .btn-hint:hover:not(:disabled) { background: #fff3cd; }
 
-    .protocol-cards { display: grid; gap: 12px; margin-bottom: 20px; }
+    /* プロトコルカード */
+    .protocol-cards { display: grid; gap: 12px; margin-bottom: 16px; }
     .protocol-card {
       background: #fff; border: 2px solid #e0e0e0; border-radius: 12px;
-      padding: 16px; cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s;
+      padding: 14px; cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s;
     }
-    .protocol-card:hover { border-color: #4a90d9; box-shadow: 0 2px 8px rgba(74,144,217,.15); }
+    .protocol-card:hover   { border-color: #4a90d9; box-shadow: 0 2px 8px rgba(74,144,217,.15); }
     .protocol-card.selected { border-color: #4a90d9; background: #eaf2ff; }
-    .protocol-card-name { font-size: 16px; font-weight: 700; color: #222; margin-bottom: 4px; }
-    .protocol-card-badge {
+    .card-name   { font-size: 16px; font-weight: 700; color: #222; margin-bottom: 4px; }
+    .card-badge  {
       display: inline-block; background: #fff3e0; color: #e67e22;
-      border-radius: 4px; padding: 2px 8px; font-size: 11px; font-weight: 600; margin-bottom: 6px;
+      border-radius: 4px; padding: 2px 8px; font-size: 11px; font-weight: 600; margin-bottom: 4px;
     }
-    .protocol-card-desc { font-size: 13px; color: #666; }
+    .card-desc   { font-size: 13px; color: #666; }
 
+    /* ステップ一覧 */
     .protocol-detail {
       background: #fff; border: 1px solid #e0e0e0; border-radius: 12px;
-      padding: 16px; margin-bottom: 16px;
+      padding: 14px; margin-bottom: 14px;
     }
-    .protocol-detail h3 { font-size: 14px; font-weight: 700; margin-bottom: 12px; color: #444; }
-    .step-list { display: flex; flex-direction: column; gap: 8px; }
+    .protocol-detail h3 { font-size: 14px; font-weight: 700; margin-bottom: 10px; color: #444; }
+    .step-list { display: flex; flex-direction: column; gap: 6px; }
     .step-item {
-      display: flex; align-items: center; gap: 10px;
+      display: flex; align-items: center; gap: 8px;
       padding: 8px 10px; background: #f8f8f8; border-radius: 8px;
     }
-    .step-label-col { font-size: 12px; color: #888; min-width: 80px; flex-shrink: 0; }
-    .step-q-col    { font-size: 14px; color: #333; flex: 1; }
-    .step-badge    { font-size: 11px; padding: 2px 8px; border-radius: 4px; flex-shrink: 0; }
-    .badge-fixed   { background: #e8f5e9; color: #2e7d32; }
-    .badge-variable{ background: #fff8e1; color: #f57f17; }
+    .step-label-col  { font-size: 12px; color: #888; min-width: 80px; flex-shrink: 0; }
+    .step-q-col      { font-size: 13px; color: #333; flex: 1; }
+    .step-badge      { font-size: 11px; padding: 2px 8px; border-radius: 4px; flex-shrink: 0; }
+    .badge-fixed     { background: #e8f5e9; color: #2e7d32; }
+    .badge-variable  { background: #fff8e1; color: #f57f17; }
 
+    /* セッション進行 */
     .progress-bar-container { background: #e0e0e0; border-radius: 4px; height: 5px; margin: 6px 0 2px; }
     .progress-bar  { background: #4a90d9; height: 100%; border-radius: 4px; transition: width 0.4s; }
-    .progress-text { font-size: 12px; color: #888; text-align: right; }
+    .progress-text { font-size: 11px; color: #888; text-align: right; }
+    .session-theme-display { font-size: 13px; color: #4a90d9; font-weight: 600; }
 
     .question-card {
-      background: #fff; border-radius: 14px; padding: 24px; margin: 16px 0;
+      background: #fff; border-radius: 14px; padding: 22px; margin: 14px 0;
       box-shadow: 0 2px 12px rgba(0,0,0,.06);
     }
-    .question-step-label {
-      font-size: 12px; color: #4a90d9; font-weight: 600;
-      text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px;
+    .q-step-label {
+      font-size: 11px; color: #4a90d9; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;
     }
-    .question-text { font-size: 22px; font-weight: 700; color: #222; line-height: 1.4; margin-bottom: 16px; }
+    .q-text { font-size: 22px; font-weight: 700; color: #222; line-height: 1.4; margin-bottom: 14px; }
 
-    .previous-answers { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+    .prev-answers { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
     .prev-answer-item { background: #f0f4ff; border-radius: 8px; padding: 8px 12px; font-size: 14px; color: #444; }
     .prev-answer-num  { font-size: 11px; color: #4a90d9; font-weight: 700; margin-right: 6px; }
+    .variable-hint    { font-size: 12px; color: #888; margin-bottom: 8px; }
 
-    .variable-hint { font-size: 12px; color: #888; margin-bottom: 8px; }
+    /* ヒント表示 */
+    .hint-box {
+      background: #fffde7; border: 1px solid #ffd54f; border-radius: 10px;
+      padding: 14px; margin-top: 10px; font-size: 14px; color: #555; line-height: 1.7;
+      white-space: pre-wrap;
+    }
+    .hint-box .hint-label { font-size: 12px; color: #f57f17; font-weight: 700; margin-bottom: 6px; }
+    .hint-loading { color: #aaa; font-size: 14px; text-align: center; padding: 10px; }
 
+    /* ボタングループ */
     .btn-group { display: flex; flex-direction: column; gap: 10px; }
 
+    /* サマリー */
     .summary-meta {
-      background: #fff; border-radius: 12px; padding: 16px;
-      margin-bottom: 16px; border: 1px solid #e0e0e0;
+      background: #fff; border-radius: 12px; padding: 14px;
+      margin-bottom: 14px; border: 1px solid #e0e0e0;
     }
     .summary-meta-title { font-size: 20px; font-weight: 700; color: #222; margin-bottom: 4px; }
     .summary-meta-info  { font-size: 13px; color: #888; }
-
     .summary-step {
-      background: #fff; border-radius: 12px; padding: 16px;
+      background: #fff; border-radius: 12px; padding: 14px;
       margin-bottom: 10px; border: 1px solid #e0e0e0;
     }
-    .summary-step-label    { font-size: 12px; color: #4a90d9; font-weight: 600; margin-bottom: 4px; }
+    .summary-step-label    { font-size: 11px; color: #4a90d9; font-weight: 600; margin-bottom: 4px; }
     .summary-step-question { font-size: 13px; color: #888; margin-bottom: 8px; }
     .summary-answer        { font-size: 15px; color: #222; line-height: 1.6; }
     .summary-answer-item   { padding: 2px 0; }
     .summary-answer-num    { font-size: 12px; color: #4a90d9; font-weight: 700; margin-right: 6px; }
 
-    .action-buttons { display: flex; gap: 10px; margin: 20px 0; flex-wrap: wrap; }
+    .action-buttons { display: flex; gap: 10px; margin: 18px 0; flex-wrap: wrap; }
     .action-buttons .btn { min-width: 80px; }
 
+    /* 過去セッション */
     .session-history-item {
       background: #fff; border-radius: 12px; padding: 14px;
       margin-bottom: 10px; border: 1px solid #e0e0e0; cursor: pointer;
     }
     .session-history-item:hover { border-color: #4a90d9; }
-    .session-history-theme { font-size: 16px; font-weight: 700; color: #222; margin-bottom: 4px; }
+    .session-history-theme { font-size: 15px; font-weight: 700; color: #222; margin-bottom: 4px; }
     .session-history-info  { font-size: 12px; color: #888; }
 
     .empty-state { text-align: center; padding: 40px 20px; color: #888; }
     .empty-icon  { font-size: 40px; margin-bottom: 12px; }
 
-    #toast {
-      position: fixed; bottom: 24px; left: 50%;
-      transform: translateX(-50%) translateY(100px);
-      background: #333; color: #fff;
-      padding: 12px 24px; border-radius: 8px; font-size: 14px;
-      transition: transform 0.3s; z-index: 100; white-space: nowrap;
+    /* 設定モーダル */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.4); z-index: 100;
+      align-items: center; justify-content: center; padding: 20px;
     }
-    #toast.show { transform: translateX(-50%) translateY(0); }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #fff; border-radius: 16px; padding: 24px;
+      width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto;
+    }
+    .modal h2 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+    .modal p  { font-size: 13px; color: #666; margin-bottom: 16px; line-height: 1.6; }
+    .modal label { font-size: 13px; font-weight: 600; color: #444; display: block; margin-bottom: 6px; }
+    .modal input[type="text"], .modal input[type="password"] {
+      width: 100%; border: 2px solid #e0e0e0; border-radius: 8px;
+      padding: 10px 14px; font-size: 15px; font-family: inherit;
+    }
+    .modal input:focus { outline: none; border-color: #4a90d9; }
+    .modal-hint { font-size: 12px; color: #888; margin-top: 4px; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+    .modal-actions .btn { flex: 1; margin-top: 0; }
+    .api-key-row { display: flex; gap: 8px; align-items: center; }
+    .api-key-row input { flex: 1; }
+    .toggle-btn {
+      background: none; border: 2px solid #e0e0e0; border-radius: 8px;
+      padding: 8px 12px; cursor: pointer; font-size: 13px; color: #666; flex-shrink: 0;
+    }
+    .api-status { font-size: 13px; margin-top: 8px; }
+    .api-status.ok  { color: #34c759; }
+    .api-status.err { color: #e74c3c; }
 
+    /* 中断バナー */
     .resume-banner {
       background: #fff8e1; border: 1px solid #ffd54f; border-radius: 10px;
       padding: 14px; margin-bottom: 16px; font-size: 14px; color: #555;
     }
-    .resume-banner strong { display: block; color: #333; margin-bottom: 6px; }
-    .resume-banner-btns { display: flex; gap: 8px; margin-top: 10px; }
-    .resume-banner-btns button {
+    .resume-banner strong { display: block; color: #333; margin-bottom: 6px; font-size: 15px; }
+    .resume-btns { display: flex; gap: 8px; margin-top: 10px; }
+    .resume-btns button {
       flex: 1; padding: 8px; border-radius: 8px; font-size: 13px;
       font-family: inherit; font-weight: 600; cursor: pointer; border: none;
     }
     .btn-resume  { background: #4a90d9; color: #fff; }
     .btn-discard { background: #f0f0f0; color: #555; }
+
+    /* トースト */
+    #toast {
+      position: fixed; bottom: 24px; left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #333; color: #fff; padding: 12px 24px;
+      border-radius: 8px; font-size: 14px; transition: transform 0.3s;
+      z-index: 200; white-space: nowrap;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
 
     @media (min-width: 480px) {
       .protocol-cards { grid-template-columns: 1fr 1fr; }
@@ -192,11 +250,34 @@
 </head>
 <body>
 
+<!-- 設定モーダル -->
+<div id="settings-modal" class="modal-overlay">
+  <div class="modal">
+    <h2>⚙️ 設定</h2>
+    <p>Gemini APIキーを入力するとヒント機能が使えます。<br>APIキーは <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Google AI Studio</a> で取得できます。</p>
+
+    <label>Gemini APIキー</label>
+    <div class="api-key-row">
+      <input type="password" id="api-key-input" placeholder="AIza..." autocomplete="off">
+      <button class="toggle-btn" onclick="toggleApiKeyVisibility()">表示</button>
+    </div>
+    <div id="api-status" class="api-status"></div>
+
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="saveSettings()" style="margin-top:0">保存</button>
+      <button class="btn btn-outline"  onclick="closeSettings()">閉じる</button>
+    </div>
+  </div>
+</div>
+
 <!-- 画面1：テーマ入力 -->
 <div id="screen1" class="screen active">
   <div class="app-header">
-    <h1>アイデア引き出し装置</h1>
-    <div class="subtitle">親が子のアイデアを引き出すための質問装置</div>
+    <div class="app-header-main">
+      <h1>アイデア引き出し装置</h1>
+      <div class="subtitle">親が子のアイデアを引き出すための質問装置</div>
+    </div>
+    <button class="settings-btn" onclick="openSettings()">⚙</button>
   </div>
   <div class="content">
     <div id="resume-banner" style="display:none"></div>
@@ -224,13 +305,16 @@
 <!-- 画面2：プロトコル選択 -->
 <div id="screen2" class="screen">
   <div class="app-header">
-    <h1>アイデア引き出し装置</h1>
-    <div class="subtitle">質問の型を選ぶ</div>
+    <div class="app-header-main">
+      <h1>アイデア引き出し装置</h1>
+      <div class="subtitle">質問の型を選ぶ</div>
+    </div>
+    <button class="settings-btn" onclick="openSettings()">⚙</button>
   </div>
   <div class="content">
     <div id="s2-theme" class="theme-badge"></div>
     <h2 class="section-title">質問の型を選んでください</h2>
-    <p class="section-desc">選んだ型の手順に従って質問が進みます。</p>
+    <p class="section-desc">選んだ型に従って質問が進みます。</p>
 
     <div class="protocol-cards" id="protocol-cards"></div>
 
@@ -247,27 +331,33 @@
 <!-- 画面3：質問セッション -->
 <div id="screen3" class="screen">
   <div class="app-header">
-    <div id="s3-theme" style="font-size:13px;color:#4a90d9;font-weight:600;"></div>
-    <div class="progress-bar-container">
-      <div class="progress-bar" id="progress-bar"></div>
+    <div class="app-header-main">
+      <div class="session-theme-display" id="s3-theme"></div>
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+      <div class="progress-text" id="progress-text"></div>
     </div>
-    <div class="progress-text" id="progress-text"></div>
+    <button class="settings-btn" onclick="openSettings()">⚙</button>
   </div>
   <div class="content">
     <div class="question-card">
-      <div class="question-step-label" id="q-step-label"></div>
-      <div class="question-text"       id="q-text"></div>
-      <div class="previous-answers"   id="prev-answers"></div>
-      <div class="variable-hint"      id="var-hint" style="display:none"></div>
+      <div class="q-step-label" id="q-step-label"></div>
+      <div class="q-text"       id="q-text"></div>
+      <div class="prev-answers" id="prev-answers"></div>
+      <div class="variable-hint" id="var-hint" style="display:none"></div>
       <textarea id="answer-input" placeholder="回答を入力..." rows="3"></textarea>
+      <div id="hint-area"></div>
     </div>
 
-    <div class="btn-group" id="fixed-ctrl">
+    <button class="btn btn-hint" id="hint-btn" onclick="requestHint()">💡 ヒントが欲しい</button>
+
+    <div class="btn-group" id="fixed-ctrl" style="margin-top:10px;">
       <button class="btn btn-primary" onclick="submitFixed()">次へ →</button>
     </div>
-    <div class="btn-group" id="var-ctrl" style="display:none">
-      <button class="btn btn-primary"    id="add-var-btn" onclick="submitVariable()">次へ追加 ＋</button>
-      <button class="btn btn-secondary"  onclick="finishVariable()">次のフェーズへ →</button>
+    <div class="btn-group" id="var-ctrl" style="display:none; margin-top:10px;">
+      <button class="btn btn-primary"   id="add-var-btn" onclick="submitVariable()">もう一つ追加 ＋</button>
+      <button class="btn btn-secondary" onclick="finishVariable()">次のフェーズへ →</button>
     </div>
   </div>
 </div>
@@ -275,7 +365,10 @@
 <!-- 画面4：まとめ -->
 <div id="screen4" class="screen">
   <div class="app-header">
-    <h1>セッション完了</h1>
+    <div class="app-header-main">
+      <h1>セッション完了</h1>
+    </div>
+    <button class="settings-btn" onclick="openSettings()">⚙</button>
   </div>
   <div class="content">
     <div id="summary-meta"  class="summary-meta"></div>
@@ -288,14 +381,15 @@
     </div>
 
     <button class="btn btn-secondary" onclick="goToHistory()">過去のセッション一覧 →</button>
-    <button class="btn btn-outline"   onclick="showScreen(1)" style="width:100%;margin-top:10px;">新しいセッションを始める</button>
+    <button class="btn btn-outline" onclick="showScreen(1)" style="width:100%;margin-top:10px;">新しいセッションを始める</button>
   </div>
 </div>
 
 <!-- 画面5：過去セッション一覧 -->
 <div id="screen5" class="screen">
   <div class="app-header">
-    <h1>過去のセッション</h1>
+    <div class="app-header-main"><h1>過去のセッション</h1></div>
+    <button class="settings-btn" onclick="openSettings()">⚙</button>
   </div>
   <div class="content">
     <div id="history-list"></div>
@@ -309,19 +403,20 @@
 'use strict';
 
 // ========== 定数 ==========
-const STORAGE_KEY = 'idea-sparker-v1';
+const STORAGE_KEY  = 'idea-sparker-v1';
+const SETTINGS_KEY = 'idea-sparker-settings';
 
 const DEFAULT_PROTOCOLS = [
   {
     id: 'moshimo', name: 'もしもリドル', author: '由貴プロトコル',
     description: '「もしも〜だったら？」から発想を広げる',
     steps: [
-      { id: 'if',         label: 'もしも',     question: 'もしも〜だったら？',         type: 'fixed'                  },
-      { id: 'happen',     label: '何が起きる', question: '何が起きる？',               type: 'fixed'                  },
-      { id: 'feeling',    label: 'どう感じる', question: 'どう感じる？',               type: 'fixed'                  },
-      { id: 'birth',      label: '何が生まれる',question: 'そこから何が生まれる？',    type: 'variable', maxCount: 3  },
-      { id: 'connection', label: 'つながり',   question: 'それらはどうつながる？',     type: 'fixed'                  },
-      { id: 'result',     label: '完成',       question: '最終的に何ができあがる？',   type: 'fixed'                  },
+      { id: 'if',         label: 'もしも',      question: 'もしも〜だったら？',        type: 'fixed'                 },
+      { id: 'happen',     label: '何が起きる',  question: '何が起きる？',              type: 'fixed'                 },
+      { id: 'feeling',    label: 'どう感じる',  question: 'どう感じる？',              type: 'fixed'                 },
+      { id: 'birth',      label: '何が生まれる',question: 'そこから何が生まれる？',    type: 'variable', maxCount: 3 },
+      { id: 'connection', label: 'つながり',    question: 'それらはどうつながる？',    type: 'fixed'                 },
+      { id: 'result',     label: '完成',        question: '最終的に何ができあがる？',  type: 'fixed'                 },
     ]
   },
   {
@@ -341,8 +436,8 @@ const DEFAULT_PROTOCOLS = [
     id: 'naze', name: 'なぜなぜ分析', author: '',
     description: '「なぜ？」を繰り返して根本に迫る',
     steps: [
-      { id: 'naze', label: 'なぜ', question: 'それはなぜ？',      type: 'variable', maxCount: 5 },
-      { id: 'root', label: '根本', question: '根本にあるものは何？', type: 'fixed'               },
+      { id: 'naze', label: 'なぜ', question: 'それはなぜ？',       type: 'variable', maxCount: 5 },
+      { id: 'root', label: '根本', question: '根本にあるものは何？', type: 'fixed'                },
     ]
   },
   {
@@ -374,13 +469,96 @@ function saveStorage(data) {
 
 function persistSession(session) {
   const data = loadStorage();
-  const idx = data.sessions.findIndex(s => s.id === session.id);
+  const idx  = data.sessions.findIndex(s => s.id === session.id);
   if (idx >= 0) { data.sessions[idx] = session; }
   else          { data.sessions.unshift(session); }
   saveStorage(data);
 }
 
-function getSessions()  { return loadStorage().sessions; }
+function getSessions() { return loadStorage().sessions; }
+
+// ========== 設定 ==========
+function loadSettings() {
+  try {
+    const raw = localStorage.getItem(SETTINGS_KEY);
+    return raw ? JSON.parse(raw) : { apiKey: '' };
+  } catch { return { apiKey: '' }; }
+}
+
+function getApiKey() { return loadSettings().apiKey || ''; }
+
+function openSettings() {
+  const key = getApiKey();
+  document.getElementById('api-key-input').value = key;
+  document.getElementById('api-status').textContent = key ? '✓ APIキーが設定されています' : '';
+  document.getElementById('api-status').className   = key ? 'api-status ok' : 'api-status';
+  document.getElementById('settings-modal').classList.add('open');
+}
+
+function closeSettings() {
+  document.getElementById('settings-modal').classList.remove('open');
+}
+
+function saveSettings() {
+  const key = document.getElementById('api-key-input').value.trim();
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify({ apiKey: key }));
+  toast(key ? 'APIキーを保存しました' : 'APIキーを削除しました');
+  closeSettings();
+}
+
+function toggleApiKeyVisibility() {
+  const input = document.getElementById('api-key-input');
+  const btn   = document.querySelector('.toggle-btn');
+  if (input.type === 'password') {
+    input.type = 'text';
+    btn.textContent = '隠す';
+  } else {
+    input.type = 'password';
+    btn.textContent = '表示';
+  }
+}
+
+// モーダル外クリックで閉じる
+document.getElementById('settings-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeSettings();
+});
+
+// ========== Gemini API ==========
+async function callGemini(theme, question) {
+  const apiKey = getApiKey();
+  if (!apiKey) return null;
+
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+
+  const body = {
+    systemInstruction: {
+      parts: [{
+        text: 'あなたは思考を深めるためのアシスタントです。ユーザーが質問に答えられない時、答えを教えるのではなく、考えるきっかけになるヒントを出してください。ヒントは短く、具体的に。子供でも読める言葉で。'
+      }]
+    },
+    contents: [{
+      role: 'user',
+      parts: [{
+        text: `テーマ：${theme}\n質問：${question}\nヒントを1〜3個出してください。`
+      }]
+    }],
+    generationConfig: { maxOutputTokens: 300 }
+  };
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error?.message || `HTTPエラー ${res.status}`);
+  }
+
+  const data = await res.json();
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || 'ヒントを取得できませんでした';
+}
 
 // ========== アプリ状態 ==========
 const state = { theme: '', selectedProtocolId: null, session: null };
@@ -419,17 +597,15 @@ function goToProtocolSelect() {
 }
 
 function showResumeBanner() {
-  const sessions = getSessions();
-  const inProgress = sessions.find(s => !s.completedAt);
+  const inProgress = getSessions().find(s => !s.completedAt);
   if (!inProgress) return;
-
   const banner = document.getElementById('resume-banner');
   banner.style.display = 'block';
   banner.innerHTML = `
     <div class="resume-banner">
       <strong>前回の途中セッションがあります</strong>
       テーマ：${esc(inProgress.theme)} ／ ${esc(inProgress.protocolName)}
-      <div class="resume-banner-btns">
+      <div class="resume-btns">
         <button class="btn-resume"  onclick="resumeSession('${inProgress.id}')">再開する</button>
         <button class="btn-discard" onclick="discardSession('${inProgress.id}')">破棄して新しく始める</button>
       </div>
@@ -441,6 +617,7 @@ function resumeSession(id) {
   const session = getSessions().find(s => s.id === id);
   if (!session) return;
   state.session = session;
+  state.theme   = session.theme;
   showScreen(3);
   renderStep();
 }
@@ -460,9 +637,9 @@ function renderScreen2() {
   const cards = document.getElementById('protocol-cards');
   cards.innerHTML = DEFAULT_PROTOCOLS.map(p => `
     <div class="protocol-card" id="card-${p.id}" onclick="selectProtocol('${p.id}')">
-      <div class="protocol-card-name">${esc(p.name)}</div>
-      ${p.author ? `<div class="protocol-card-badge">${esc(p.author)}</div>` : ''}
-      <div class="protocol-card-desc">${esc(p.description)}</div>
+      <div class="card-name">${esc(p.name)}</div>
+      ${p.author ? `<div class="card-badge">${esc(p.author)}</div>` : ''}
+      <div class="card-desc">${esc(p.description)}</div>
     </div>
   `).join('');
 
@@ -529,6 +706,7 @@ function renderStep() {
   document.getElementById('q-step-label').textContent = step.label;
   document.getElementById('q-text').textContent       = step.question;
   document.getElementById('answer-input').value       = '';
+  document.getElementById('hint-area').innerHTML      = '';
 
   renderPrevAnswers(step);
 
@@ -539,31 +717,63 @@ function renderStep() {
   } else {
     document.getElementById('fixed-ctrl').style.display = 'none';
     document.getElementById('var-ctrl').style.display   = 'flex';
-
     const hint = document.getElementById('var-hint');
     hint.style.display = 'block';
     hint.textContent   = `${step.answers.length} 件入力済み（最大 ${step.maxCount} 件）`;
 
     const addBtn = document.getElementById('add-var-btn');
     if (step.answers.length >= step.maxCount) {
-      addBtn.disabled   = true;
+      addBtn.disabled    = true;
       addBtn.textContent = `上限（${step.maxCount}件）に達しました`;
     } else {
-      addBtn.disabled   = false;
-      addBtn.textContent = `次へ追加 ＋（${step.answers.length}/${step.maxCount}）`;
+      addBtn.disabled    = false;
+      addBtn.textContent = `もう一つ追加 ＋（${step.answers.length}/${step.maxCount}）`;
     }
+  }
+
+  // APIキーがない場合はヒントボタンをグレーアウト
+  const hintBtn = document.getElementById('hint-btn');
+  if (!getApiKey()) {
+    hintBtn.textContent = '💡 ヒントが欲しい（設定からAPIキーを入力）';
+    hintBtn.disabled = true;
+  } else {
+    hintBtn.textContent = '💡 ヒントが欲しい';
+    hintBtn.disabled = false;
   }
 
   document.getElementById('answer-input').focus();
 }
 
 function renderPrevAnswers(step) {
-  const el = document.getElementById('prev-answers');
-  el.innerHTML = step.answers.map((a, i) => `
+  document.getElementById('prev-answers').innerHTML = step.answers.map((a, i) => `
     <div class="prev-answer-item">
       <span class="prev-answer-num">${i + 1}.</span>${esc(a)}
     </div>
   `).join('');
+}
+
+async function requestHint() {
+  const session  = state.session;
+  const step     = session.steps[session.currentStepIndex];
+  const hintArea = document.getElementById('hint-area');
+  const hintBtn  = document.getElementById('hint-btn');
+
+  hintArea.innerHTML = '<div class="hint-loading">ヒントを生成中...</div>';
+  hintBtn.disabled   = true;
+
+  try {
+    const hint = await callGemini(session.theme, step.question);
+    hintArea.innerHTML = `
+      <div class="hint-box">
+        <div class="hint-label">💡 ヒント</div>
+        ${esc(hint)}
+      </div>
+    `;
+  } catch (e) {
+    hintArea.innerHTML = `<div class="hint-box" style="border-color:#e74c3c;background:#fff5f5;color:#e74c3c;">エラー：${esc(e.message)}</div>`;
+  } finally {
+    hintBtn.disabled = false;
+  }
 }
 
 function getAnswerInput() { return document.getElementById('answer-input').value.trim(); }
