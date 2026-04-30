@@ -445,17 +445,16 @@
       <div class="hint-level-header">
         <span class="hint-level-title">ヒントの強さ</span>
         <div class="hint-level-badge">
-          <span class="hint-level-num" id="hint-level-num">5</span>
-          <span class="hint-level-max">/10</span>
+          <span class="hint-level-num" id="hint-level-num">3</span>
+          <span class="hint-level-max">/5</span>
         </div>
       </div>
       <input type="range" class="hint-level-slider" id="hint-level-slider"
-             min="1" max="10" value="5" oninput="onHintLevelChange(this.value)">
+             min="1" max="5" value="3" oninput="onHintLevelChange(this.value)">
       <div class="hint-level-labels">
         <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
-        <span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
       </div>
-      <div class="hint-level-desc" id="hint-level-desc">参考例を示す</div>
+      <div class="hint-level-desc" id="hint-level-desc">例を見ながら考える</div>
     </div>
 
     <div class="btn-group" id="fixed-ctrl" style="margin-top:10px;">
@@ -599,7 +598,7 @@ function loadSettings() {
 }
 
 function getApiKey()    { return loadSettings().apiKey || ''; }
-function getHintLevel() { return parseInt(loadSettings().hintLevel ?? 5, 10); }
+function getHintLevel() { return parseInt(loadSettings().hintLevel ?? 3, 10); }
 
 function saveHintLevel(level) {
   const s = loadSettings();
@@ -608,21 +607,28 @@ function saveHintLevel(level) {
 }
 
 function getHintLevelDesc(level) {
-  const n = parseInt(level, 10);
-  if (n <= 2)  return '考える視点だけ（最小ヒント）';
-  if (n <= 4)  return '観点をいくつか示す';
-  if (n <= 6)  return '参考例を示す';
-  if (n <= 9)  return '選択肢を提示';
-  return '選ぶだけで進む（最大ヒント）';
+  switch (parseInt(level, 10)) {
+    case 1:  return 'きっかけだけ教える（いちばんやさしい）';
+    case 2:  return '考え方をいくつか教える';
+    case 3:  return '例を見ながら考える（ふつう）';
+    case 4:  return 'えらべる答えを見せる';
+    default: return '答えをえらぶだけ（いちばん強い）';
+  }
 }
 
 function getHintPrompt(level) {
-  const n = parseInt(level, 10);
-  if (n <= 2)  return 'あなたは思考を深めるためのアシスタントです。考える視点を1つだけ、5〜10文字で短く示してください。答えや具体例は出さないでください。';
-  if (n <= 4)  return 'あなたは思考を深めるためのアシスタントです。考える観点を2〜3個、箇条書きで示してください。具体的な答えや選択肢は出さないでください。';
-  if (n <= 6)  return 'あなたは思考を深めるためのアシスタントです。考える参考になる例を2〜3個示してください。ユーザーが自分で発展させられる程度の具体性で。';
-  if (n <= 9)  return 'あなたは思考を深めるためのアシスタントです。具体的な選択肢を3〜5個、箇条書きで示してください。それぞれ短く理由も添えてください。';
-  return 'あなたは思考を深めるためのアシスタントです。ユーザーが選ぶだけで進める形で、選択肢を5〜7個、チェックボックス形式で示してください。';
+  switch (parseInt(level, 10)) {
+    case 1:
+      return 'あなたは子供の思考を助けるアシスタントです。答えを教えないでください。考えるきっかけになる「問いかけ」を1つだけ、短い言葉で出してください。小学生でも読める言葉を使ってください。';
+    case 2:
+      return 'あなたは子供の思考を助けるアシスタントです。答えを教えないでください。考えるときに役立つ視点を2〜3個、箇条書きで出してください。具体的な答えは書かないでください。小学生でも読める言葉を使ってください。';
+    case 3:
+      return 'あなたは子供の思考を助けるアシスタントです。参考になる例を2〜3個、箇条書きで出してください。例を見てユーザー自身が考えられる程度の内容にしてください。小学生でも読める言葉を使ってください。';
+    case 4:
+      return 'あなたは子供の思考を助けるアシスタントです。考えられる答えの選択肢を3〜5個、箇条書きで出してください。それぞれに短い理由も添えてください。小学生でも読める言葉を使ってください。';
+    default:
+      return 'あなたは子供の思考を助けるアシスタントです。答えの選択肢を5〜7個、番号付きで出してください。ユーザーがえらぶだけで答えられる形にしてください。小学生でも読める言葉を使ってください。';
+  }
 }
 
 function onHintLevelChange(val) {
@@ -938,8 +944,8 @@ function renderStep() {
   // ヒントレベルUI初期化
   const savedLevel = getHintLevel();
   document.getElementById('hint-level-slider').value       = savedLevel;
-  document.getElementById('hint-level-num').textContent    = savedLevel;
-  document.getElementById('hint-level-desc').textContent   = getHintLevelDesc(savedLevel);
+  document.getElementById('hint-level-num').textContent  = savedLevel;
+  document.getElementById('hint-level-desc').textContent = getHintLevelDesc(savedLevel);
 
   // APIキーがない場合はヒント関連をグレーアウト
   const hintBtn = document.getElementById('hint-btn');
