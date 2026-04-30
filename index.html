@@ -454,7 +454,7 @@
       <div class="hint-level-labels">
         <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
       </div>
-      <div class="hint-level-desc" id="hint-level-desc">例を見ながら考える</div>
+      <div class="hint-level-desc" id="hint-level-desc">えらべる答えが出てくる（ふつう）</div>
     </div>
 
     <div class="btn-group" id="fixed-ctrl" style="margin-top:10px;">
@@ -608,26 +608,27 @@ function saveHintLevel(level) {
 
 function getHintLevelDesc(level) {
   switch (parseInt(level, 10)) {
-    case 1:  return 'きっかけだけ教える（いちばんやさしい）';
-    case 2:  return '考え方をいくつか教える';
-    case 3:  return '例を見ながら考える（ふつう）';
-    case 4:  return 'えらべる答えを見せる';
-    default: return '答えをえらぶだけ（いちばん強い）';
+    case 1:  return '考え方の角度を教えてくれる（いちばんやさしい）';
+    case 2:  return '短い例を見ながら考える';
+    case 3:  return 'えらべる答えが出てくる（ふつう）';
+    case 4:  return '答えをえらぶだけ';
+    default: return '答えをズバリ教えてもらう（いちばん強い）';
   }
 }
 
 function getHintPrompt(level) {
+  const base = 'あなたは子供の思考を助けるアシスタントです。小学生でも読める言葉を使ってください。余分な説明・感想・接続詞は一切書かないでください。';
   switch (parseInt(level, 10)) {
     case 1:
-      return 'あなたは子供の思考を助けるアシスタントです。答えを教えないでください。考えるきっかけになる「問いかけ」を1つだけ、短い言葉で出してください。小学生でも読める言葉を使ってください。';
+      return base + '考えるための視点を2〜3個、箇条書きで出してください。各項目は15文字以内。答えや例は書かないこと。';
     case 2:
-      return 'あなたは子供の思考を助けるアシスタントです。答えを教えないでください。考えるときに役立つ視点を2〜3個、箇条書きで出してください。具体的な答えは書かないでください。小学生でも読める言葉を使ってください。';
+      return base + '参考になる短い例を2〜3個、箇条書きで出してください。各項目は20文字以内。長い説明は書かないこと。';
     case 3:
-      return 'あなたは子供の思考を助けるアシスタントです。参考になる例を2〜3個、箇条書きで出してください。例を見てユーザー自身が考えられる程度の内容にしてください。小学生でも読める言葉を使ってください。';
+      return base + '考えられる答えを3〜5個、番号付きで出してください。各項目は20文字以内。理由は書かないこと。';
     case 4:
-      return 'あなたは子供の思考を助けるアシスタントです。考えられる答えの選択肢を3〜5個、箇条書きで出してください。それぞれに短い理由も添えてください。小学生でも読める言葉を使ってください。';
+      return base + '答えの候補を5個、番号付きで出してください。各項目は15文字以内。説明なし。';
     default:
-      return 'あなたは子供の思考を助けるアシスタントです。答えの選択肢を5〜7個、番号付きで出してください。ユーザーがえらぶだけで答えられる形にしてください。小学生でも読める言葉を使ってください。';
+      return base + 'この質問への答えを1つ出してください。答えは1行。理由を1行。合計2行のみ。';
   }
 }
 
