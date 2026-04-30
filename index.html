@@ -267,6 +267,47 @@
       .protocol-cards { grid-template-columns: 1fr 1fr; }
     }
 
+    /* ヒントレベル設定 */
+    .hint-level-control {
+      background: #fff8e1; border: 1px solid #ffe082; border-radius: 10px;
+      padding: 12px 14px; margin-top: 8px;
+    }
+    .hint-level-header {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;
+    }
+    .hint-level-title { font-size: 12px; font-weight: 600; color: #e67e22; }
+    .hint-level-badge {
+      display: flex; align-items: baseline; gap: 3px;
+    }
+    .hint-level-num  { font-size: 22px; font-weight: 700; color: #e67e22; line-height: 1; }
+    .hint-level-max  { font-size: 12px; color: #bbb; }
+    .hint-level-slider {
+      -webkit-appearance: none; appearance: none;
+      width: 100%; height: 6px; border-radius: 3px;
+      background: linear-gradient(to right, #ffd54f, #f57f17);
+      outline: none; cursor: pointer;
+    }
+    .hint-level-slider::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 22px; height: 22px; border-radius: 50%;
+      background: #e67e22; cursor: pointer;
+      box-shadow: 0 1px 4px rgba(0,0,0,.2);
+    }
+    .hint-level-slider::-moz-range-thumb {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: #e67e22; cursor: pointer; border: none;
+      box-shadow: 0 1px 4px rgba(0,0,0,.2);
+    }
+    .hint-level-labels {
+      display: flex; justify-content: space-between;
+      font-size: 10px; color: #ccc; margin-top: 2px; padding: 0 2px;
+    }
+    .hint-level-desc {
+      font-size: 12px; color: #a0522d; margin-top: 8px;
+      background: #fff3e0; border-radius: 6px; padding: 5px 10px;
+      text-align: center; font-weight: 600;
+    }
+
     /* アイデアまとめセクション */
     .idea-summary-section {
       background: #fff; border-radius: 12px; padding: 18px;
@@ -399,6 +440,23 @@
     </div>
 
     <button class="btn btn-hint" id="hint-btn" onclick="requestHint()">💡 ヒントが欲しい</button>
+
+    <div class="hint-level-control" id="hint-level-control">
+      <div class="hint-level-header">
+        <span class="hint-level-title">ヒントの強さ</span>
+        <div class="hint-level-badge">
+          <span class="hint-level-num" id="hint-level-num">5</span>
+          <span class="hint-level-max">/10</span>
+        </div>
+      </div>
+      <input type="range" class="hint-level-slider" id="hint-level-slider"
+             min="1" max="10" value="5" oninput="onHintLevelChange(this.value)">
+      <div class="hint-level-labels">
+        <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+        <span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
+      </div>
+      <div class="hint-level-desc" id="hint-level-desc">参考例を示す</div>
+    </div>
 
     <div class="btn-group" id="fixed-ctrl" style="margin-top:10px;">
       <button class="btn btn-primary" onclick="submitFixed()">次へ →</button>
@@ -540,7 +598,38 @@ function loadSettings() {
   } catch { return { apiKey: '' }; }
 }
 
-function getApiKey() { return loadSettings().apiKey || ''; }
+function getApiKey()    { return loadSettings().apiKey || ''; }
+function getHintLevel() { return parseInt(loadSettings().hintLevel ?? 5, 10); }
+
+function saveHintLevel(level) {
+  const s = loadSettings();
+  s.hintLevel = parseInt(level, 10);
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
+}
+
+function getHintLevelDesc(level) {
+  const n = parseInt(level, 10);
+  if (n <= 2)  return '考える視点だけ（最小ヒント）';
+  if (n <= 4)  return '観点をいくつか示す';
+  if (n <= 6)  return '参考例を示す';
+  if (n <= 9)  return '選択肢を提示';
+  return '選ぶだけで進む（最大ヒント）';
+}
+
+function getHintPrompt(level) {
+  const n = parseInt(level, 10);
+  if (n <= 2)  return 'あなたは思考を深めるためのアシスタントです。考える視点を1つだけ、5〜10文字で短く示してください。答えや具体例は出さないでください。';
+  if (n <= 4)  return 'あなたは思考を深めるためのアシスタントです。考える観点を2〜3個、箇条書きで示してください。具体的な答えや選択肢は出さないでください。';
+  if (n <= 6)  return 'あなたは思考を深めるためのアシスタントです。考える参考になる例を2〜3個示してください。ユーザーが自分で発展させられる程度の具体性で。';
+  if (n <= 9)  return 'あなたは思考を深めるためのアシスタントです。具体的な選択肢を3〜5個、箇条書きで示してください。それぞれ短く理由も添えてください。';
+  return 'あなたは思考を深めるためのアシスタントです。ユーザーが選ぶだけで進める形で、選択肢を5〜7個、チェックボックス形式で示してください。';
+}
+
+function onHintLevelChange(val) {
+  document.getElementById('hint-level-num').textContent  = val;
+  document.getElementById('hint-level-desc').textContent = getHintLevelDesc(val);
+  saveHintLevel(val);
+}
 
 function openSettings() {
   const key = getApiKey();
@@ -579,7 +668,7 @@ document.getElementById('settings-modal').addEventListener('click', function(e) 
 });
 
 // ========== Gemini API ==========
-async function callGemini(theme, question) {
+async function callGemini(theme, question, level) {
   const apiKey = getApiKey();
   if (!apiKey) return null;
 
@@ -587,14 +676,12 @@ async function callGemini(theme, question) {
 
   const body = {
     systemInstruction: {
-      parts: [{
-        text: 'あなたは思考を深めるためのアシスタントです。ユーザーが質問に答えられない時、答えを教えるのではなく、考えるきっかけになるヒントを出してください。ヒントは短く、具体的に。子供でも読める言葉で。'
-      }]
+      parts: [{ text: getHintPrompt(level ?? getHintLevel()) }]
     },
     contents: [{
       role: 'user',
       parts: [{
-        text: `テーマ：${theme}\n質問：${question}\nヒントを1〜3個出してください。`
+        text: `テーマ：${theme}\n質問：${question}`
       }]
     }],
     generationConfig: {
@@ -848,14 +935,25 @@ function renderStep() {
     }
   }
 
-  // APIキーがない場合はヒントボタンをグレーアウト
+  // ヒントレベルUI初期化
+  const savedLevel = getHintLevel();
+  document.getElementById('hint-level-slider').value       = savedLevel;
+  document.getElementById('hint-level-num').textContent    = savedLevel;
+  document.getElementById('hint-level-desc').textContent   = getHintLevelDesc(savedLevel);
+
+  // APIキーがない場合はヒント関連をグレーアウト
   const hintBtn = document.getElementById('hint-btn');
+  const hintLvl = document.getElementById('hint-level-control');
   if (!getApiKey()) {
     hintBtn.textContent = '💡 ヒントが欲しい（設定からAPIキーを入力）';
-    hintBtn.disabled = true;
+    hintBtn.disabled    = true;
+    hintLvl.style.opacity = '0.4';
+    hintLvl.style.pointerEvents = 'none';
   } else {
     hintBtn.textContent = '💡 ヒントが欲しい';
-    hintBtn.disabled = false;
+    hintBtn.disabled    = false;
+    hintLvl.style.opacity = '1';
+    hintLvl.style.pointerEvents = 'auto';
   }
 
   document.getElementById('answer-input').focus();
@@ -902,8 +1000,9 @@ async function requestHint() {
   hintArea.innerHTML = '<div class="hint-loading">ヒントを生成中...</div>';
   hintBtn.disabled   = true;
 
+  const level = getHintLevel();
   try {
-    const hint = await callGemini(session.theme, step.question);
+    const hint = await callGemini(session.theme, step.question, level);
     hintArea.innerHTML = `
       <div class="hint-box">
         <div class="hint-label">💡 ヒント</div>
