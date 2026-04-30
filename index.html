@@ -563,7 +563,7 @@ async function callGemini(theme, question) {
         text: `テーマ：${theme}\n質問：${question}\nヒントを1〜3個出してください。`
       }]
     }],
-    generationConfig: { maxOutputTokens: 300 }
+    generationConfig: { maxOutputTokens: 1024 }
   };
 
   const res = await fetch(url, {
@@ -578,7 +578,17 @@ async function callGemini(theme, question) {
   }
 
   const data = await res.json();
-  return data.candidates?.[0]?.content?.parts?.[0]?.text || 'ヒントを取得できませんでした';
+  console.log('Gemini response:', JSON.stringify(data, null, 2));
+
+  if (data.candidates?.[0]?.finishReason === 'MAX_TOKENS') {
+    console.warn('Gemini: MAX_TOKENS に達しました。レスポンスが途中で切れています。');
+  }
+
+  // Gemini 2.5 Flash は thought（思考テキスト）と回答テキストを別partsで返す。
+  // thought=true のpartを除いて結合する。
+  const parts = data.candidates?.[0]?.content?.parts || [];
+  const text  = parts.filter(p => !p.thought).map(p => p.text || '').join('');
+  return text || 'ヒントを取得できませんでした';
 }
 
 // ========== アプリ状態 ==========
