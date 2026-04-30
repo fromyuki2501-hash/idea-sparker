@@ -266,6 +266,33 @@
     @media (min-width: 480px) {
       .protocol-cards { grid-template-columns: 1fr 1fr; }
     }
+
+    /* アイデアまとめセクション */
+    .idea-summary-section {
+      background: #fff; border-radius: 12px; padding: 18px;
+      margin-bottom: 14px; border: 2px solid #d0e8ff;
+    }
+    .idea-summary-title {
+      font-size: 15px; font-weight: 700; color: #4a90d9; margin-bottom: 12px;
+    }
+    .idea-summary-section textarea { min-height: 200px; }
+    .btn-ai-assist {
+      background: #f0f7ff; color: #4a90d9; border: 2px solid #4a90d9;
+      width: 100%; margin-top: 12px; font-size: 14px; padding: 10px;
+      border-radius: 10px; font-family: inherit; font-weight: 600; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      transition: background 0.15s;
+    }
+    .btn-ai-assist:hover:not(:disabled) { background: #daeeff; }
+    .btn-ai-assist:disabled { opacity: 0.4; cursor: not-allowed; }
+    .ai-suggestion-box {
+      background: #f0f7ff; border: 1px solid #c5dff8; border-radius: 10px;
+      padding: 14px; margin-top: 12px; font-size: 14px; color: #333;
+      line-height: 1.8; white-space: pre-wrap;
+    }
+    .ai-suggestion-label {
+      font-size: 12px; color: #4a90d9; font-weight: 700; margin-bottom: 8px;
+    }
   </style>
 </head>
 <body>
@@ -394,6 +421,13 @@
   <div class="content">
     <div id="summary-meta"  class="summary-meta"></div>
     <div id="summary-steps"></div>
+
+    <div class="idea-summary-section">
+      <div class="idea-summary-title">あなたのアイデアまとめ</div>
+      <textarea id="idea-memo" placeholder="上の答えを見て、思いついたアイデアを自由に書いてください" rows="10" oninput="saveIdeaMemo()"></textarea>
+      <button class="btn-ai-assist" id="ai-assist-btn" onclick="requestIdeaSuggestion()">✨ AIに整理を手伝ってもらう</button>
+      <div id="idea-suggestion-area"></div>
+    </div>
 
     <div class="action-buttons">
       <button class="btn btn-success" onclick="copyAll()">コピー</button>
@@ -589,6 +623,51 @@ async function callGemini(theme, question) {
   const parts = data.candidates?.[0]?.content?.parts || [];
   const text  = parts.filter(p => !p.thought).map(p => p.text || '').join('');
   return text || 'ヒントを取得できませんでした';
+}
+
+async function callGeminiSuggestion(session) {
+  const apiKey = getApiKey();
+  if (!apiKey) return null;
+
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+
+  const answersText = session.steps.map(step => {
+    const ans = step.type === 'fixed'
+      ? (step.answers[0] || '（未回答）')
+      : step.answers.join('、');
+    return `${step.label}（${step.question}）：${ans}`;
+  }).join('\n');
+
+  const body = {
+    systemInstruction: {
+      parts: [{
+        text: 'あなたはアイデア整理のアシスタントです。以下のテーマと回答を見て、ユーザーのアイデアの方向性を3つの文に整理してください。答えを決めるのではなく、ユーザーが選べる選択肢として提示してください。3つの方向性を箇条書きで出してください。各方向性は1〜2文で短く。'
+      }]
+    },
+    contents: [{
+      role: 'user',
+      parts: [{
+        text: `テーマ：${session.theme}\n回答：\n${answersText}`
+      }]
+    }],
+    generationConfig: { maxOutputTokens: 1024 }
+  };
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error?.message || `HTTPエラー ${res.status}`);
+  }
+
+  const data = await res.json();
+  const parts = data.candidates?.[0]?.content?.parts || [];
+  const text  = parts.filter(p => !p.thought).map(p => p.text || '').join('');
+  return text || '提案を取得できませんでした';
 }
 
 // ========== アプリ状態 ==========
@@ -896,6 +975,45 @@ function renderSummary() {
       </div>
     `;
   }).join('');
+
+  // アイデアまとめ復元
+  document.getElementById('idea-memo').value = s.ideaMemo || '';
+  document.getElementById('idea-suggestion-area').innerHTML = '';
+
+  const aiBtn = document.getElementById('ai-assist-btn');
+  if (!getApiKey()) {
+    aiBtn.textContent = '✨ AIに整理を手伝ってもらう（設定からAPIキーを入力）';
+    aiBtn.disabled = true;
+  } else {
+    aiBtn.textContent = '✨ AIに整理を手伝ってもらう';
+    aiBtn.disabled = false;
+  }
+}
+
+function saveIdeaMemo() {
+  if (!state.session) return;
+  state.session.ideaMemo = document.getElementById('idea-memo').value;
+  persistSession(state.session);
+}
+
+async function requestIdeaSuggestion() {
+  const area  = document.getElementById('idea-suggestion-area');
+  const aiBtn = document.getElementById('ai-assist-btn');
+  area.innerHTML = '<div class="hint-loading">AIが整理中...</div>';
+  aiBtn.disabled = true;
+  try {
+    const text = await callGeminiSuggestion(state.session);
+    area.innerHTML = `
+      <div class="ai-suggestion-box">
+        <div class="ai-suggestion-label">✨ AIからの3つの方向性</div>
+        ${esc(text)}
+      </div>
+    `;
+  } catch (e) {
+    area.innerHTML = `<div class="ai-suggestion-box" style="border-color:#e74c3c;background:#fff5f5;color:#e74c3c;">エラー：${esc(e.message)}</div>`;
+  } finally {
+    aiBtn.disabled = false;
+  }
 }
 
 function buildText() {
@@ -906,6 +1024,9 @@ function buildText() {
     if (step.type === 'fixed') { t += `${step.answers[0] || '（未回答）'}\n\n`; }
     else { step.answers.forEach((a, i) => { t += `${i+1}. ${a}\n`; }); t += '\n'; }
   });
+  if (s.ideaMemo) {
+    t += `${'─'.repeat(30)}\n【あなたのアイデアまとめ】\n${s.ideaMemo}\n`;
+  }
   return t;
 }
 
