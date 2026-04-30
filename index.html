@@ -597,7 +597,10 @@ async function callGemini(theme, question) {
         text: `テーマ：${theme}\n質問：${question}\nヒントを1〜3個出してください。`
       }]
     }],
-    generationConfig: { maxOutputTokens: 1024 }
+    generationConfig: {
+      maxOutputTokens: 1024,
+      thinkingConfig: { thinkingBudget: 0 }
+    }
   };
 
   const res = await fetch(url, {
@@ -650,7 +653,10 @@ async function callGeminiSuggestion(session) {
         text: `テーマ：${session.theme}\n回答：\n${answersText}`
       }]
     }],
-    generationConfig: { maxOutputTokens: 1024 }
+    generationConfig: {
+      maxOutputTokens: 2048,
+      thinkingConfig: { thinkingBudget: 0 }
+    }
   };
 
   const res = await fetch(url, {
